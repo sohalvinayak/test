@@ -2,102 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Redirecting to App...</title>
+    <title>MobilePASS+ Redirect</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: sans-serif; text-align: center; padding-top: 50px; }
-    </style>
 </head>
 <body>
-    <h2>Redirecting to the app...</h2>
-    <p>If you are not redirected automatically, please wait a moment.</p>
-    <p id="status-message"></p>
-
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const statusMessage = document.getElementById('status-message');
-
-            // Function to get the query parameter from the URL (e.g., ?enrollment=...)
-            const getQueryParam = (param) => {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get(param);  // Returns the value of the query parameter or null if not found
-            };
-
-            const enrollmentParam = getQueryParam('enrollment');  // Get 'enrollment' query param from URL
-
-            if (!enrollmentParam) {
-                statusMessage.textContent = "No enrollment provided in the request.";
-                return;
+        document.addEventListener('DOMContentLoaded', function () {
+            function getQueryParam(name) {
+                const params = new URLSearchParams(window.location.search);
+                return params.get(name);
             }
 
-            // Base64 decode the enrollment parameter value
-            const decodedEnrollment = atob(enrollmentParam);  // Decode the Base64 encoded string
+            const enrollmentData = getQueryParam('enrollment');
 
-            // Optional: Check the decoded value for debugging
-            console.log('Decoded Enrollment:', decodedEnrollment);
+            if (enrollmentData) {
+                const encodedEnrollment = encodeURIComponent(enrollmentData);
 
-            const getMobileOS = () => {
-                const ua = navigator.userAgent || navigator.vendor || window.opera;
-                if (/android/i.test(ua)) return "Android";
-                if (/iPad|iPhone|iPod/.test(ua)) return "iOS";
-                return "Other";
-            };
-
-            const os = getMobileOS();
-
-            const config = {
-                // Dynamically use the decoded enrollment URL in the deep link
-                androidScheme: `intent://open#Intent;scheme=mpassplus;package=com.gemalto.mpassplus;S.enrollment=${encodeURIComponent(decodedEnrollment)};end`,
-                androidFallbackScheme: `mpassplus://?enrollment=${encodeURIComponent(decodedEnrollment)}`, // URL passed as query param
-                iosScheme: `mpassplus://?enrollment=${encodeURIComponent(decodedEnrollment)}`, // iOS with URL
-                androidStore: "https://play.google.com/store/apps/details?id=com.gemalto.mpassplus",
-                iosStore: "https://apps.apple.com/us/app/safenet-mobilepass/id1056481326"
-            };
-
-            if (os === "Android" || os === "iOS") {
-                statusMessage.textContent = "Trying to open the app...";
-
-                const storeUrl = os === "Android" ? config.androidStore : config.iosStore;
-
-                if (os === "Android") {
-                    const isChrome = /Chrome/.test(navigator.userAgent);
-                    setTimeout(() => {
-                        statusMessage.textContent = "App not found. Redirecting to the Play Store...";
-                        window.location.href = storeUrl;
-                    }, 1500);
-
-                    if (isChrome) {
-                        window.location.href = config.androidScheme;
-                    } else {
-                        window.location.href = config.androidFallbackScheme;
-                    }
-
-                } else if (os === "iOS") {
-                    const start = Date.now();
-                    setTimeout(() => {
-                        const elapsed = Date.now() - start;
-                        if (elapsed < 3000) {
-                            statusMessage.textContent = "App not found. Redirecting to the App Store...";
-                            window.location.href = storeUrl;
-                        }
-                    }, 2500);
-
-                    // Open app via hidden iframe
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = config.iosScheme;
-                    document.body.appendChild(iframe);
+                if (/android/i.test(navigator.userAgent)) {
+                    window.location.href = `https://play.google.com/store/apps/details?id=com.gemalto.mpassplus&referrer=${encodedEnrollment}`;
+                } else if (/iphone|ipad/i.test(navigator.userAgent)) {
+                    window.location.href = `https://apps.apple.com/us/app/safenet-mobilepass/id1056481326?referrer=${encodedEnrollment}`;
                 }
-
-            } else {
-                statusMessage.textContent = "Please open this page on your mobile device.";
             }
         });
     </script>
-
-    <p>
-        <a href="#" onclick="window.location.href=window.location.href">Open App Manually</a> |
-        <a href="https://apps.apple.com/us/app/safenet-mobilepass/id1056481326">Get the App</a>
-    </p>
 </body>
 </html>
