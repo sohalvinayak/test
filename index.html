@@ -17,6 +17,25 @@
         document.addEventListener('DOMContentLoaded', () => {
             const statusMessage = document.getElementById('status-message');
 
+            // Function to get the query parameter from the URL (e.g., ?enrollment=...)
+            const getQueryParam = (param) => {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(param);  // Returns the value of the query parameter or null if not found
+            };
+
+            const enrollmentParam = getQueryParam('enrollment');  // Get 'enrollment' query param from URL
+
+            if (!enrollmentParam) {
+                statusMessage.textContent = "No enrollment provided in the request.";
+                return;
+            }
+
+            // Base64 decode the enrollment parameter value
+            const decodedEnrollment = atob(enrollmentParam);  // Decode the Base64 encoded string
+
+            // Optional: Check the decoded value for debugging
+            console.log('Decoded Enrollment:', decodedEnrollment);
+
             const getMobileOS = () => {
                 const ua = navigator.userAgent || navigator.vendor || window.opera;
                 if (/android/i.test(ua)) return "Android";
@@ -27,9 +46,10 @@
             const os = getMobileOS();
 
             const config = {
-                androidScheme: "intent://open#Intent;scheme=mpassplus;package=com.gemalto.mpassplus;end",
-                androidFallbackScheme: "mpassplus://",
-                iosScheme: "mpassplus://",
+                // Dynamically use the decoded enrollment URL in the deep link
+                androidScheme: `intent://open#Intent;scheme=mpassplus;package=com.gemalto.mpassplus;S.enrollment=${encodeURIComponent(decodedEnrollment)};end`,
+                androidFallbackScheme: `mpassplus://?enrollment=${encodeURIComponent(decodedEnrollment)}`, // URL passed as query param
+                iosScheme: `mpassplus://?enrollment=${encodeURIComponent(decodedEnrollment)}`, // iOS with URL
                 androidStore: "https://play.google.com/store/apps/details?id=com.gemalto.mpassplus",
                 iosStore: "https://apps.apple.com/us/app/safenet-mobilepass/id1056481326"
             };
@@ -76,7 +96,7 @@
     </script>
 
     <p>
-        <a href="mpassplus://">Open App Manually</a> |
+        <a href="#" onclick="window.location.href=window.location.href">Open App Manually</a> |
         <a href="https://apps.apple.com/us/app/safenet-mobilepass/id1056481326">Get the App</a>
     </p>
 </body>
