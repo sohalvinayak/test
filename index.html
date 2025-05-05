@@ -27,8 +27,9 @@
             const os = getMobileOS();
 
             const config = {
-                androidScheme: "intent://open#Intent;scheme=example;package=com.example.app;end",
-                iosScheme: "example://",
+                androidScheme: "intent://open#Intent;scheme=mpassplus;package=com.gemalto.mpassplus;end",
+                androidFallbackScheme: "mpassplus://",
+                iosScheme: "mpassplus://",
                 androidStore: "https://play.google.com/store/apps/details?id=com.gemalto.mpassplus",
                 iosStore: "https://apps.apple.com/us/app/safenet-mobilepass/id1056481326"
             };
@@ -36,23 +37,32 @@
             if (os === "Android" || os === "iOS") {
                 statusMessage.textContent = "Trying to open the app...";
 
-                const startTime = Date.now();
+                const storeUrl = os === "Android" ? config.androidStore : config.iosStore;
+                const scheme = os === "Android" ? config.androidScheme : config.iosScheme;
 
-                setTimeout(() => {
-                    const now = Date.now();
-                    if (now - startTime < 1600) {
-                        const storeUrl = os === "Android" ? config.androidStore : config.iosStore;
-                        statusMessage.textContent = "App not found. Redirecting to the app store...";
-                        window.location.href = storeUrl;
+                // Set fallback if app not opened
+                const timeout = setTimeout(() => {
+                    statusMessage.textContent = "App not found. Redirecting to the app store...";
+                    window.location.href = storeUrl;
+                }, os === "iOS" ? 2500 : 1500);
+
+                // Android: Check browser compatibility
+                if (os === "Android") {
+                    const isChrome = /Chrome/.test(navigator.userAgent);
+                    if (!isChrome) {
+                        window.location.href = config.androidFallbackScheme;
+                    } else {
+                        window.location.href = config.androidScheme;
                     }
-                }, 1500);
-
-                const appUrl = os === "Android" ? config.androidScheme : config.iosScheme;
-                window.location.href = appUrl;
+                } else {
+                    window.location.href = scheme; // iOS
+                }
             } else {
                 statusMessage.textContent = "Please open this page on your mobile device.";
             }
         });
     </script>
+
+    <p><a href="mpassplus://">Open App Manually</a></p>
 </body>
 </html>
