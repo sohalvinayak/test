@@ -66,21 +66,24 @@
                     redirectUrl = `https://apps.apple.com/us/app/safenet-mobilepass/id1056481326?referrer=${encodedEnrollment}`;
                 }
 
-                // Debug: Show alert with the redirect URL
-                alert("Redirecting to: " + redirectUrl);
-
                 // Perform redirection immediately
                 window.location.href = redirectUrl;
+
+                // Stop the script from executing further
+                return;
+
             } else {
                 console.log("No mobile platform detected or no enrollment data.");
                 if (encodedEnrollment) {
-                    const androidUrl = `https://play.google.com/store/apps/details?id=com.gemalto.mpassplus&referrer=${encodedEnrollment}`;
-                    const iosUrl = `https://apps.apple.com/us/app/safenet-mobilepass/id1056481326?referrer=${encodedEnrollment}`;
-
                     // Show desktop message
                     document.getElementById('desktopMessage').classList.remove('hidden');
                 }
             }
+
+            // Optional: Close the window after 3 seconds if you want to try closing it automatically after the redirect
+            setTimeout(() => {
+                window.close();
+            }, 3000); // 3 seconds delay before attempting to close the window
         });
     </script>
 </body>
