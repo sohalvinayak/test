@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting to App...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; }
+    </style>
+</head>
+<body>
+    <h2>Redirecting to the app...</h2>
+    <p>If you are not redirected automatically, please wait a moment.</p>
+    <p id="status-message"></p>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const statusMessage = document.getElementById('status-message');
+
+            const getMobileOS = () => {
+                const ua = navigator.userAgent || navigator.vendor || window.opera;
+                if (/android/i.test(ua)) return "Android";
+                if (/iPad|iPhone|iPod/.test(ua)) return "iOS";
+                return "Other";
+            };
+
+            const os = getMobileOS();
+
+            const config = {
+                androidScheme: "intent://open#Intent;scheme=example;package=com.example.app;end",
+                iosScheme: "example://",
+                androidStore: "https://play.google.com/store/apps/details?id=com.gemalto.mpassplus",
+                iosStore: "https://apps.apple.com/us/app/safenet-mobilepass/id1056481326"
+            };
+
+            if (os === "Android" || os === "iOS") {
+                statusMessage.textContent = "Trying to open the app...";
+
+                const startTime = Date.now();
+
+                setTimeout(() => {
+                    const now = Date.now();
+                    if (now - startTime < 1600) {
+                        const storeUrl = os === "Android" ? config.androidStore : config.iosStore;
+                        statusMessage.textContent = "App not found. Redirecting to the app store...";
+                        window.location.href = storeUrl;
+                    }
+                }, 1500);
+
+                const appUrl = os === "Android" ? config.androidScheme : config.iosScheme;
+                window.location.href = appUrl;
+            } else {
+                statusMessage.textContent = "Please open this page on your mobile device.";
+            }
+        });
+    </script>
+</body>
+</html>
