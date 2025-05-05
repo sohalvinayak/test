@@ -34,6 +34,16 @@
         .hidden {
             display: none;
         }
+        .url-output {
+            margin-top: 20px;
+            font-size: 14px;
+            word-break: break-all;
+            text-align: left;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
@@ -42,6 +52,9 @@
         <p id="message">Redirecting to the app...<br>
         If you are not redirected automatically, please wait a moment.</p>
         <p id="desktopMessage" class="hidden">Please open this page on your mobile device.</p>
+        <div id="fallbackLink" class="hidden">
+            <p>If the redirection did not happen, <a href="#" id="fallbackUrl">click here to open the app store</a>.</p>
+        </div>
     </div>
 
     <script>
@@ -59,13 +72,30 @@
             const isMobile = isAndroid || isIOS;
 
             if (encodedEnrollment && isMobile) {
+                let redirectUrl = '';
                 if (isAndroid) {
-                    window.location.href = `https://play.google.com/store/apps/details?id=com.gemalto.mpassplus&referrer=${encodedEnrollment}`;
+                    redirectUrl = `https://play.google.com/store/apps/details?id=com.gemalto.mpassplus&referrer=${encodedEnrollment}`;
                 } else if (isIOS) {
-                    window.location.href = `https://apps.apple.com/us/app/safenet-mobilepass/id1056481326?referrer=${encodedEnrollment}`;
+                    redirectUrl = `https://apps.apple.com/us/app/safenet-mobilepass/id1056481326?referrer=${encodedEnrollment}`;
                 }
+
+                // Debug: Show the redirect URL in an alert
+                alert("Redirecting to: " + redirectUrl);
+
+                // Uncomment the following line to allow actual redirection
+                // window.location.href = redirectUrl;
             } else {
-                document.getElementById('desktopMessage').classList.remove('hidden');
+                console.log("No mobile platform detected or no enrollment data.");
+                if (encodedEnrollment) {
+                    const androidUrl = `https://play.google.com/store/apps/details?id=com.gemalto.mpassplus&referrer=${encodedEnrollment}`;
+                    const iosUrl = `https://apps.apple.com/us/app/safenet-mobilepass/id1056481326?referrer=${encodedEnrollment}`;
+
+                    // Display the fallback message and clickable URLs
+                    document.getElementById('desktopMessage').classList.remove('hidden');
+                    document.getElementById('fallbackLink').classList.remove('hidden');
+                    document.getElementById('fallbackUrl').href = androidUrl;
+                    document.getElementById('fallbackUrl').textContent = "Go to Google Play Store (Android)";
+                }
             }
 
             setTimeout(() => {
