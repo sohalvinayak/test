@@ -66,24 +66,22 @@
                     redirectUrl = `https://apps.apple.com/us/app/safenet-mobilepass/id1056481326?referrer=${encodedEnrollment}`;
                 }
 
+                // Hide the spinner and message immediately
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('message').style.display = 'none';
+
                 // Perform redirection immediately
                 window.location.href = redirectUrl;
 
-                // Stop the script from executing further
+                // Stop further script execution
                 return;
-
             } else {
                 console.log("No mobile platform detected or no enrollment data.");
                 if (encodedEnrollment) {
-                    // Show desktop message
+                    // Show desktop message if no mobile device is detected
                     document.getElementById('desktopMessage').classList.remove('hidden');
                 }
             }
-
-            // Optional: Close the window after 3 seconds if you want to try closing it automatically after the redirect
-            setTimeout(() => {
-                window.close();
-            }, 3000); // 3 seconds delay before attempting to close the window
         });
     </script>
 </body>
