@@ -38,31 +38,46 @@
                 statusMessage.textContent = "Trying to open the app...";
 
                 const storeUrl = os === "Android" ? config.androidStore : config.iosStore;
-                const scheme = os === "Android" ? config.androidScheme : config.iosScheme;
 
-                // Set fallback if app not opened
-                const timeout = setTimeout(() => {
-                    statusMessage.textContent = "App not found. Redirecting to the app store...";
-                    window.location.href = storeUrl;
-                }, os === "iOS" ? 2500 : 1500);
-
-                // Android: Check browser compatibility
                 if (os === "Android") {
                     const isChrome = /Chrome/.test(navigator.userAgent);
-                    if (!isChrome) {
-                        window.location.href = config.androidFallbackScheme;
-                    } else {
+                    setTimeout(() => {
+                        statusMessage.textContent = "App not found. Redirecting to the Play Store...";
+                        window.location.href = storeUrl;
+                    }, 1500);
+
+                    if (isChrome) {
                         window.location.href = config.androidScheme;
+                    } else {
+                        window.location.href = config.androidFallbackScheme;
                     }
-                } else {
-                    window.location.href = scheme; // iOS
+
+                } else if (os === "iOS") {
+                    const start = Date.now();
+                    setTimeout(() => {
+                        const elapsed = Date.now() - start;
+                        if (elapsed < 3000) {
+                            statusMessage.textContent = "App not found. Redirecting to the App Store...";
+                            window.location.href = storeUrl;
+                        }
+                    }, 2500);
+
+                    // Open app via hidden iframe
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = config.iosScheme;
+                    document.body.appendChild(iframe);
                 }
+
             } else {
                 statusMessage.textContent = "Please open this page on your mobile device.";
             }
         });
     </script>
 
-    <p><a href="mpassplus://">Open App Manually</a></p>
+    <p>
+        <a href="mpassplus://">Open App Manually</a> |
+        <a href="https://apps.apple.com/us/app/safenet-mobilepass/id1056481326">Get the App</a>
+    </p>
 </body>
 </html>
